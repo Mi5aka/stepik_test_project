@@ -1,0 +1,26 @@
+# PyCharm
+.idea/
+
+# OSX
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Configuration file with private data:
+*.env
+.env
+
+# Local settings files:
+*local.py
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+__pycache__/
+stepik_venv/
+docker/data/
+frontend/node_modules/

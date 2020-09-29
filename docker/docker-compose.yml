@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:13-alpine
+    container_name: test_db
+    volumes:
+      - "./data/db:/var/lib/postgresql/data"
+    env_file:
+      - ./db.env
+    ports:
+      - 5432:5432
+
+  redis:
+    image: redis:6-alpine
+    hostname: redis
+    volumes:
+      - "./data/redisdata:/data"
+    ports:
+      - 6379:6379
