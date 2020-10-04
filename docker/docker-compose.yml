@@ -18,3 +18,14 @@ services:
       - "./data/redisdata:/data"
     ports:
       - 6379:6379
+
+  rabbitmq:
+    image: rabbitmq:3.8-alpine
+    hostname: rabbitmq
+    volumes:
+      - "./data/rabbitmq:/data"
+    env_file:
+      - ./rabbitmq.env
+    ports:
+      - 5672:5672
+      - 15672:15672

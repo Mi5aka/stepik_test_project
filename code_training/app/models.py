@@ -8,9 +8,9 @@ class Decision(models.Model):
     wrong = 'WR'
 
     STATUSES = (
-        (evaluation, 'Решение проверяется'),
-        (correct, 'Решение верное'),
-        (wrong, 'Решение неверное')
+        (evaluation, _('evaluation')),
+        (correct, _('correct')),
+        (wrong, _('wrong'))
     )
 
     text = models.TextField(
@@ -34,3 +34,5 @@ class Decision(models.Model):
         verbose_name_plural = _('Decisions')
         db_table = 'decisions'
 
+    def __str__(self):
+        return self.id
