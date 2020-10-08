@@ -1,15 +1,8 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from djangochannelsrestframework import permissions
-from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
-from djangochannelsrestframework.mixins import (
-    ListModelMixin,
-    PatchModelMixin,
-    UpdateModelMixin,
-    CreateModelMixin,
-    DeleteModelMixin,
-)
-from djangochannelsrestframework.observer import model_observer
+from django_celery_results.models import TaskResult
+from celery.result import AsyncResult
 
 from .models import Decision
 from .serializers import DecisionSerializer
@@ -25,26 +18,30 @@ class DecisionViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        task_check_results.apply_async(args=(serializer.data['id'],), kwargs={})
+        # если при сериализации объекта статус решения не перезаписан
+        # то запускаем задачу celery и сразу отдаем ответ без ожидания
+        if serializer.data['status'] == Decision.evaluation:
+            task = task_check_results.apply_async(
+                args=(serializer.data['id'],),
+                kwargs={}
+            )
+            headers.update({'Task-Id': task.id})
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED,
             headers=headers
         )
 
-'''
-class LiveDecisionConsumer(
-    PatchModelMixin,
-    GenericAsyncAPIConsumer
-):
-
-    queryset = Decision.objects.all()
-    serializer_class = DecisionSerializer
-    permission_classes = (permissions.AllowAny,)
-
-    @model_observer(Decision)
-    async def post_change_handler(self, message, observer=None, **kwargs):
-        # called when a subscribed item changes
-        print('Я работаю!')
-        await self.send_json(message)
-'''
+    def retrieve(self, request, *args, **kwargs):
+        task_id = self.request.headers.get('Task-Id', None)
+        if task_id:
+            try:
+                TaskResult.objects.get(task_id=task_id)
+            except ObjectDoesNotExist:
+                # TODO: проверить по тестам это место
+                res = AsyncResult(task_id)
+                while res.status != 'SUCCESS':
+                    res = AsyncResult(task_id)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

@@ -33,6 +33,3 @@ class Decision(models.Model):
         verbose_name = _('Decision')
         verbose_name_plural = _('Decisions')
         db_table = 'decisions'
-
-    def __str__(self):
-        return self.id
