@@ -21,6 +21,6 @@
 *.log
 *.pyc
 __pycache__/
-stepik_venv/
+venv/
 docker/data/
 frontend/node_modules/
