@@ -1,0 +1,3 @@
+export const ADD_DECISION = 'ADD_DECISION'
+export const CHECK_DECISION = 'CHECK_DECISION'
+export const SET_DECISIONS = 'SET_DECISIONS'
