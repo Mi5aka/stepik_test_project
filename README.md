@@ -12,6 +12,7 @@ Celery
     celery -A code_training worker -l INFO
 
 Generate message files for a desired language
+
     python manage.py makemessages -l ru
  
 After adding translations to the .po files, compile the messages
